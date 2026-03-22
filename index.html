@@ -374,12 +374,44 @@ function LCCard(props){
   var s1=useState("");var nm=s1[0],setNm=s1[1];
   var s2=useState(PATTERNS[0]);var pt=s2[0],setPt=s2[1];
   var s3=useState("Medium");var df=s3[0],setDf=s3[1];
+  var s4=useState(false);var showReview=s4[0],setShowReview=s4[1];
   var lc=props.D.leetcode||[];
-  function add(){if(!nm.trim())return;props.save({...props.D,leetcode:[...lc,{id:Date.now(),name:nm.trim(),pattern:pt,diff:df,date:dk()}]});setNm("")}
+  function add(){if(!nm.trim())return;props.save({...props.D,leetcode:[...lc,{id:Date.now(),name:nm.trim(),pattern:pt,diff:df,date:dk(),redo:null}]});setNm("")}
   function rm(id){props.save({...props.D,leetcode:lc.filter(function(l){return l.id!==id})})}
+  function schedRedo(id,days){
+    var d=new Date();d.setDate(d.getDate()+days);var target=dk(d);
+    props.save({...props.D,leetcode:lc.map(function(l){return l.id===id?{...l,redo:target}:l})});
+  }
+  function clearRedo(id){props.save({...props.D,leetcode:lc.map(function(l){return l.id===id?{...l,redo:null}:l})})}
+
+  var today=dk();
+  var due=lc.filter(function(l){return l.redo&&l.redo<=today});
+  var upcoming=lc.filter(function(l){return l.redo&&l.redo>today}).sort(function(a,b){return a.redo<b.redo?-1:1});
   var byP={};lc.forEach(function(l){byP[l.pattern]=(byP[l.pattern]||0)+1});
   var dc=function(d){return d==="Easy"?"#22c55e":d==="Medium"?"#f59e0b":"#ef4444"};
+
   return <div style={{display:"flex",flexDirection:"column",gap:10}}>
+    {/* Review queue */}
+    {due.length>0&&<div className="C" style={{padding:14,border:"1px solid #f59e0b33",background:"linear-gradient(135deg,#1a1508,#0a0e1a)"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <span style={{fontSize:13,fontWeight:600,color:"#f59e0b",letterSpacing:1}}>{"\uD83D\uDD01"} DUE FOR REVIEW</span>
+        <span className="O" style={{fontSize:16,fontWeight:700,color:"#f59e0b"}}>{due.length}</span>
+      </div>
+      {due.map(function(l){return <div key={l.id} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:"1px solid #141c2e"}}>
+        <span style={{width:7,height:7,borderRadius:4,background:dc(l.diff),flexShrink:0}}/>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:12,color:"#d1d5db",fontWeight:500}}>{l.name}</div>
+          <div style={{fontSize:10,color:"#475569"}}>{l.pattern}</div>
+        </div>
+        <div style={{display:"flex",gap:3}}>
+          <button onClick={function(){schedRedo(l.id,3)}} style={{background:"#1a274422",border:"1px solid #3b82f644",color:"#3b82f6",borderRadius:5,padding:"2px 6px",fontSize:9,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>+3d</button>
+          <button onClick={function(){schedRedo(l.id,7)}} style={{background:"#1a274422",border:"1px solid #818cf844",color:"#818cf8",borderRadius:5,padding:"2px 6px",fontSize:9,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>+7d</button>
+          <button onClick={function(){clearRedo(l.id)}} style={{background:"#22c55e18",border:"1px solid #22c55e44",color:"#22c55e",borderRadius:5,padding:"2px 6px",fontSize:9,cursor:"pointer"}}>{"\u2713"}</button>
+        </div>
+      </div>})}
+    </div>}
+
+    {/* Stats */}
     <div className="C" style={{padding:14}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
         <span style={{fontSize:13,fontWeight:600,color:"#94a3b8",letterSpacing:1}}>LEETCODE</span>
@@ -388,10 +420,23 @@ function LCCard(props){
       <div style={{height:6,background:"#141c2e",borderRadius:3,overflow:"hidden",marginBottom:8}}>
         <div style={{width:Math.min(100,lc.length/150*100)+"%",height:"100%",background:"linear-gradient(90deg,#f59e0b,#f97316)",borderRadius:3}}/>
       </div>
-      {Object.keys(byP).length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-        {Object.entries(byP).sort(function(a,b){return b[1]-a[1]}).slice(0,5).map(function(e){return <span key={e[0]} style={{fontSize:10,padding:"2px 6px",background:"#141c2e",borderRadius:5,color:"#94a3b8"}}>{e[0]} <span className="M" style={{color:"#f59e0b"}}>{e[1]}</span></span>})}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        {Object.keys(byP).length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:4,flex:1}}>
+          {Object.entries(byP).sort(function(a,b){return b[1]-a[1]}).slice(0,5).map(function(e){return <span key={e[0]} style={{fontSize:10,padding:"2px 6px",background:"#141c2e",borderRadius:5,color:"#94a3b8"}}>{e[0]} <span className="M" style={{color:"#f59e0b"}}>{e[1]}</span></span>})}
+        </div>}
+        {upcoming.length>0&&<button onClick={function(){setShowReview(!showReview)}} style={{background:"none",border:"1px solid #1a2744",borderRadius:6,padding:"2px 8px",fontSize:9,color:"#818cf8",cursor:"pointer",flexShrink:0}}>{"\uD83D\uDD52"} {upcoming.length} scheduled</button>}
+      </div>
+      {showReview&&upcoming.length>0&&<div style={{marginTop:8,borderTop:"1px solid #141c2e",paddingTop:8}}>
+        {upcoming.slice(0,8).map(function(l){return <div key={l.id} style={{display:"flex",alignItems:"center",gap:6,padding:"3px 0",fontSize:11}}>
+          <span style={{width:5,height:5,borderRadius:3,background:dc(l.diff)}}/>
+          <span style={{flex:1,color:"#94a3b8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.name}</span>
+          <span className="M" style={{fontSize:9,color:"#475569"}}>{l.redo}</span>
+          <button onClick={function(){clearRedo(l.id)}} style={{background:"none",border:"none",color:"#3b4a63",cursor:"pointer",fontSize:11}}>{"\u00D7"}</button>
+        </div>})}
       </div>}
     </div>
+
+    {/* Add form */}
     <div className="C" style={{padding:14}}>
       <input placeholder="Problem name..." value={nm} onChange={function(e){setNm(e.target.value)}} onKeyDown={function(e){if(e.key==="Enter")add()}} style={{marginBottom:6}}/>
       <div style={{display:"flex",gap:6,marginBottom:8}}>
@@ -400,10 +445,20 @@ function LCCard(props){
       </div>
       <button className="B" onClick={add}>+ Log Problem</button>
     </div>
-    <div style={{maxHeight:260,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
-      {lc.slice().reverse().slice(0,15).map(function(l){return <div key={l.id} className="C" style={{padding:"8px 12px",display:"flex",alignItems:"center",gap:8}}>
+
+    {/* Problem list with redo scheduling */}
+    <div style={{maxHeight:300,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
+      {lc.slice().reverse().slice(0,20).map(function(l){return <div key={l.id} className="C" style={{padding:"8px 12px",display:"flex",alignItems:"center",gap:8}}>
         <span style={{width:7,height:7,borderRadius:4,background:dc(l.diff),flexShrink:0}}/>
-        <div style={{flex:1,minWidth:0}}><div style={{fontSize:12,color:"#d1d5db",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.name}</div><div style={{fontSize:10,color:"#475569"}}>{l.pattern}</div></div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:12,color:"#d1d5db",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.name}</div>
+          <div style={{fontSize:10,color:"#475569"}}>{l.pattern}{l.redo?" \u00B7 redo "+l.redo:""}</div>
+        </div>
+        <div style={{display:"flex",gap:2,flexShrink:0}}>
+          <button onClick={function(){schedRedo(l.id,3)}} title="Redo in 3 days" style={{background:l.redo?"#3b82f622":"transparent",border:"1px solid #141c2e",color:"#3b82f6",borderRadius:4,padding:"1px 4px",fontSize:8,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>3</button>
+          <button onClick={function(){schedRedo(l.id,7)}} title="Redo in 7 days" style={{background:"transparent",border:"1px solid #141c2e",color:"#818cf8",borderRadius:4,padding:"1px 4px",fontSize:8,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>7</button>
+          <button onClick={function(){schedRedo(l.id,14)}} title="Redo in 14 days" style={{background:"transparent",border:"1px solid #141c2e",color:"#a78bfa",borderRadius:4,padding:"1px 4px",fontSize:8,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>14</button>
+        </div>
         <span className="M" style={{fontSize:9,color:"#3b4a63"}}>{l.date.slice(5)}</span>
         <button onClick={function(){rm(l.id)}} style={{background:"none",border:"none",color:"#3b4a63",cursor:"pointer",fontSize:14}}>{"\u00D7"}</button>
       </div>})}
@@ -533,7 +588,11 @@ function MobileHistory(props){
       })}
     </div>
     <DatePicker D={props.D} save={props.save}/>
-    <div style={{textAlign:"center",padding:8}}>
+    <div style={{textAlign:"center",padding:8,display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+      <button className="B" style={{maxWidth:200,background:"linear-gradient(135deg,#1a2744,#2563eb)"}} onClick={function(){
+        var blob=new Blob([JSON.stringify(props.D,null,2)],{type:"application/json"});
+        var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="battleplan-backup-"+dk()+".json";a.click();
+      }}>Export Backup (JSON)</button>
       <button className="B" style={{background:"linear-gradient(135deg,#3b1010,#7f1d1d)",maxWidth:200}} onClick={function(){if(confirm("Reset ALL data?")){props.save(defaultData())}}}>Reset All Data</button>
     </div>
   </div>;
