@@ -17,12 +17,12 @@
 html,body{background:#060810;color:#e2e8f0;font-family:'Outfit',sans-serif;overflow-x:hidden}
 ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#1a2236;border-radius:3px}
 @keyframes su{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.C{background:#0a0e1a;border:1px solid #141c2e;border-radius:14px;padding:16px;animation:su .3s ease both}
+.C{background:#0a0e1a;border:1px solid #141c2e;border-radius:14px;padding:18px;animation:su .3s ease both}
 .M{font-family:'JetBrains Mono',monospace}
 .O{font-family:'Orbitron',sans-serif}
-.B{background:linear-gradient(135deg,#1a2744,#2563eb);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:'Outfit';font-size:13px;font-weight:500;cursor:pointer;width:100%}
+.B{background:linear-gradient(135deg,#1a2744,#2563eb);color:#fff;border:none;border-radius:10px;padding:14px 16px;font-family:'Outfit';font-size:15px;font-weight:500;cursor:pointer;width:100%;min-height:48px}
 .B:active{transform:scale(.97)}
-input,select{background:#080c16;border:1px solid #141c2e;color:#e2e8f0;border-radius:8px;padding:8px 12px;font-family:'Outfit';font-size:13px;width:100%;outline:none}
+input,select{background:#080c16;border:1px solid #141c2e;color:#e2e8f0;border-radius:10px;padding:14px 14px;font-family:'Outfit';font-size:15px;width:100%;outline:none;min-height:48px}
 input:focus,select:focus{border-color:#3b82f6}
 select{appearance:none}
 #root{min-height:100vh}
@@ -191,9 +191,9 @@ function App(){
       <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:"linear-gradient(180deg,transparent,#060810 20%)",paddingTop:16,zIndex:50}}>
         <div style={{display:"flex",justifyContent:"space-around",background:"#0a0e1a",borderTop:"1px solid #1a2236",borderRadius:"16px 16px 0 0",padding:"6px 0 8px"}}>
           {tabItems.map(function(t,i){return(
-            <button key={i} onClick={function(){setTab(i)}} style={{background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:1,padding:"4px 16px",color:tab===i?"#3b82f6":"#475569"}}>
-              <span style={{fontSize:18,fontFamily:"'Orbitron'",fontWeight:tab===i?700:400}}>{t.i}</span>
-              <span style={{fontSize:10,fontWeight:tab===i?600:400}}>{t.l}</span>
+            <button key={i} onClick={function(){setTab(i)}} style={{background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:2,padding:"8px 20px",color:tab===i?"#3b82f6":"#475569",minHeight:52}}>
+              <span style={{fontSize:22,fontFamily:"'Orbitron'",fontWeight:tab===i?700:400}}>{t.i}</span>
+              <span style={{fontSize:12,fontWeight:tab===i?600:400}}>{t.l}</span>
               {tab===i&&<div style={{width:4,height:4,borderRadius:2,background:"#3b82f6",marginTop:1}}/>}
             </button>
           )})}
@@ -229,14 +229,14 @@ function CountdownRing(props){
       </svg>
       <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
         <span className="O" style={{fontSize:28,fontWeight:800,color:props.left<=7?"#f59e0b":"#3b82f6"}}>{props.left}</span>
-        <span style={{fontSize:9,color:"#64748b",letterSpacing:1}}>DAYS LEFT</span>
+        <span style={{fontSize:10,color:"#64748b",letterSpacing:1}}>DAYS LEFT</span>
       </div>
     </div>
     <div style={{flex:1}}>
-      <div style={{fontSize:13,color:"#94a3b8",fontWeight:500,marginBottom:6}}>Mission Progress</div>
+      <div style={{fontSize:14,color:"#94a3b8",fontWeight:500,marginBottom:6}}>Mission Progress</div>
       <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
-        <span style={{fontSize:11,color:"#64748b"}}>Day {props.elapsed+1} of 60</span>
-        <span className="M" style={{fontSize:11,color:"#3b82f6"}}>{pct}%</span>
+        <span style={{fontSize:12,color:"#64748b"}}>Day {props.elapsed+1} of 60</span>
+        <span className="M" style={{fontSize:12,color:"#3b82f6"}}>{pct}%</span>
       </div>
       <div style={{height:6,background:"#141c2e",borderRadius:3,overflow:"hidden"}}>
         <div style={{width:pct+"%",height:"100%",background:"linear-gradient(90deg,#3b82f6,#818cf8)",borderRadius:3,transition:"width .5s"}}/>
@@ -248,9 +248,9 @@ function CountdownRing(props){
 function StatsGrid(props){
   var items=[{v:props.streak,s:"d",l:"Streak",c:props.streak>=7?"#22c55e":"#3b82f6"},{v:props.week,s:"/8",l:"Week",c:"#818cf8"},{v:props.lc,s:"/150",l:"LC Done",c:"#f59e0b"},{v:props.apps,s:"",l:"Apps Sent",c:"#22c55e"}];
   return <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
-    {items.map(function(s,i){return <div key={i} className="C" style={{padding:10,textAlign:"center"}}>
-      <div className="O" style={{fontSize:20,fontWeight:700,color:s.c,lineHeight:1}}>{s.v}<span style={{fontSize:10,color:"#475569"}}>{s.s}</span></div>
-      <div style={{fontSize:9,color:"#64748b",letterSpacing:1,marginTop:3}}>{s.l}</div>
+    {items.map(function(s,i){return <div key={i} className="C" style={{padding:12,textAlign:"center"}}>
+      <div className="O" style={{fontSize:22,fontWeight:700,color:s.c,lineHeight:1}}>{s.v}<span style={{fontSize:11,color:"#475569"}}>{s.s}</span></div>
+      <div style={{fontSize:10,color:"#64748b",letterSpacing:1,marginTop:4}}>{s.l}</div>
     </div>})}
   </div>;
 }
@@ -266,10 +266,10 @@ function ChecklistCard(props){
       <span className="M" style={{fontSize:12,color:allDone?"#22c55e":"#3b82f6"}}>{props.done}/{CHECKS.length}</span>
     </div>
     {CHECKS.map(function(item,i){var checked=props.checks[i];return(
-      <button key={i} onClick={function(){props.toggle(i)}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:checked?"rgba(34,197,94,.04)":"transparent",border:checked?"1px solid rgba(34,197,94,.12)":"1px solid #141c2e",borderRadius:10,cursor:"pointer",marginBottom:4,width:"100%",textAlign:"left"}}>
-        <div style={{width:20,height:20,borderRadius:6,border:checked?"2px solid #22c55e":"2px solid #293548",background:checked?"#22c55e":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{checked&&<span style={{color:"#fff",fontSize:11}}>✓</span>}</div>
-        <span style={{flex:1,fontSize:13,color:checked?"#64748b":"#d1d5db",textDecoration:checked?"line-through":"none"}}>{item.i} {item.l}</span>
-        <span className="M" style={{fontSize:10,color:"#3b4a63"}}>{item.t}</span>
+      <button key={i} onClick={function(){props.toggle(i)}} style={{display:"flex",alignItems:"center",gap:12,padding:"14px 14px",background:checked?"rgba(34,197,94,.04)":"transparent",border:checked?"1px solid rgba(34,197,94,.12)":"1px solid #141c2e",borderRadius:12,cursor:"pointer",marginBottom:6,width:"100%",textAlign:"left",minHeight:52}}>
+        <div style={{width:26,height:26,borderRadius:8,border:checked?"2px solid #22c55e":"2px solid #293548",background:checked?"#22c55e":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{checked&&<span style={{color:"#fff",fontSize:14}}>✓</span>}</div>
+        <span style={{flex:1,fontSize:15,color:checked?"#64748b":"#d1d5db",textDecoration:checked?"line-through":"none",lineHeight:1.3}}>{item.i} {item.l}</span>
+        <span className="M" style={{fontSize:12,color:"#3b4a63"}}>{item.t}</span>
       </button>
     )})}
   </div>;
@@ -397,16 +397,16 @@ function LCCard(props){
         <span style={{fontSize:13,fontWeight:600,color:"#f59e0b",letterSpacing:1}}>{"\uD83D\uDD01"} DUE FOR REVIEW</span>
         <span className="O" style={{fontSize:16,fontWeight:700,color:"#f59e0b"}}>{due.length}</span>
       </div>
-      {due.map(function(l){return <div key={l.id} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",borderBottom:"1px solid #141c2e"}}>
-        <span style={{width:7,height:7,borderRadius:4,background:dc(l.diff),flexShrink:0}}/>
+      {due.map(function(l){return <div key={l.id} style={{display:"flex",alignItems:"center",gap:10,padding:"12px 0",borderBottom:"1px solid #141c2e"}}>
+        <span style={{width:10,height:10,borderRadius:5,background:dc(l.diff),flexShrink:0}}/>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:12,color:"#d1d5db",fontWeight:500}}>{l.name}</div>
-          <div style={{fontSize:10,color:"#475569"}}>{l.pattern}</div>
+          <div style={{fontSize:14,color:"#d1d5db",fontWeight:500}}>{l.name}</div>
+          <div style={{fontSize:12,color:"#475569"}}>{l.pattern}</div>
         </div>
-        <div style={{display:"flex",gap:3}}>
-          <button onClick={function(){schedRedo(l.id,3)}} style={{background:"#1a274422",border:"1px solid #3b82f644",color:"#3b82f6",borderRadius:5,padding:"2px 6px",fontSize:9,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>+3d</button>
-          <button onClick={function(){schedRedo(l.id,7)}} style={{background:"#1a274422",border:"1px solid #818cf844",color:"#818cf8",borderRadius:5,padding:"2px 6px",fontSize:9,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>+7d</button>
-          <button onClick={function(){clearRedo(l.id)}} style={{background:"#22c55e18",border:"1px solid #22c55e44",color:"#22c55e",borderRadius:5,padding:"2px 6px",fontSize:9,cursor:"pointer"}}>{"\u2713"}</button>
+        <div style={{display:"flex",gap:5}}>
+          <button onClick={function(){schedRedo(l.id,3)}} style={{background:"#1a274433",border:"1px solid #3b82f644",color:"#3b82f6",borderRadius:8,minWidth:42,minHeight:38,fontSize:12,cursor:"pointer",fontFamily:"'JetBrains Mono'",fontWeight:600}}>+3d</button>
+          <button onClick={function(){schedRedo(l.id,7)}} style={{background:"#1a274433",border:"1px solid #818cf844",color:"#818cf8",borderRadius:8,minWidth:42,minHeight:38,fontSize:12,cursor:"pointer",fontFamily:"'JetBrains Mono'",fontWeight:600}}>+7d</button>
+          <button onClick={function(){clearRedo(l.id)}} style={{background:"#22c55e18",border:"1px solid #22c55e44",color:"#22c55e",borderRadius:8,minWidth:42,minHeight:38,fontSize:16,cursor:"pointer"}}>{"\u2713"}</button>
         </div>
       </div>})}
     </div>}
@@ -422,16 +422,16 @@ function LCCard(props){
       </div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         {Object.keys(byP).length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:4,flex:1}}>
-          {Object.entries(byP).sort(function(a,b){return b[1]-a[1]}).slice(0,5).map(function(e){return <span key={e[0]} style={{fontSize:10,padding:"2px 6px",background:"#141c2e",borderRadius:5,color:"#94a3b8"}}>{e[0]} <span className="M" style={{color:"#f59e0b"}}>{e[1]}</span></span>})}
+          {Object.entries(byP).sort(function(a,b){return b[1]-a[1]}).slice(0,5).map(function(e){return <span key={e[0]} style={{fontSize:12,padding:"4px 8px",background:"#141c2e",borderRadius:6,color:"#94a3b8"}}>{e[0]} <span className="M" style={{color:"#f59e0b"}}>{e[1]}</span></span>})}
         </div>}
-        {upcoming.length>0&&<button onClick={function(){setShowReview(!showReview)}} style={{background:"none",border:"1px solid #1a2744",borderRadius:6,padding:"2px 8px",fontSize:9,color:"#818cf8",cursor:"pointer",flexShrink:0}}>{"\uD83D\uDD52"} {upcoming.length} scheduled</button>}
+        {upcoming.length>0&&<button onClick={function(){setShowReview(!showReview)}} style={{background:"none",border:"1px solid #1a2744",borderRadius:8,padding:"6px 12px",fontSize:12,color:"#818cf8",cursor:"pointer",flexShrink:0,minHeight:36}}>{"\uD83D\uDD52"} {upcoming.length} scheduled</button>}
       </div>
       {showReview&&upcoming.length>0&&<div style={{marginTop:8,borderTop:"1px solid #141c2e",paddingTop:8}}>
-        {upcoming.slice(0,8).map(function(l){return <div key={l.id} style={{display:"flex",alignItems:"center",gap:6,padding:"3px 0",fontSize:11}}>
-          <span style={{width:5,height:5,borderRadius:3,background:dc(l.diff)}}/>
+        {upcoming.slice(0,8).map(function(l){return <div key={l.id} style={{display:"flex",alignItems:"center",gap:8,padding:"8px 0",fontSize:13}}>
+          <span style={{width:8,height:8,borderRadius:4,background:dc(l.diff)}}/>
           <span style={{flex:1,color:"#94a3b8",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.name}</span>
-          <span className="M" style={{fontSize:9,color:"#475569"}}>{l.redo}</span>
-          <button onClick={function(){clearRedo(l.id)}} style={{background:"none",border:"none",color:"#3b4a63",cursor:"pointer",fontSize:11}}>{"\u00D7"}</button>
+          <span className="M" style={{fontSize:11,color:"#475569"}}>{l.redo}</span>
+          <button onClick={function(){clearRedo(l.id)}} style={{background:"none",border:"none",color:"#475569",cursor:"pointer",fontSize:18,minWidth:36,minHeight:36,display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u00D7"}</button>
         </div>})}
       </div>}
     </div>
@@ -447,20 +447,23 @@ function LCCard(props){
     </div>
 
     {/* Problem list with redo scheduling */}
-    <div style={{maxHeight:300,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
-      {lc.slice().reverse().slice(0,20).map(function(l){return <div key={l.id} className="C" style={{padding:"8px 12px",display:"flex",alignItems:"center",gap:8}}>
-        <span style={{width:7,height:7,borderRadius:4,background:dc(l.diff),flexShrink:0}}/>
+    <div style={{maxHeight:350,overflowY:"auto",display:"flex",flexDirection:"column",gap:6}}>
+      {lc.slice().reverse().slice(0,20).map(function(l){
+        // Compute which interval is active based on days from TODAY
+        var redoDays=null;
+        if(l.redo){var diff=Math.round((new Date(l.redo+"T12:00:00")-new Date(today+"T12:00:00"))/(864e5));if(diff<=3)redoDays=3;else if(diff<=7)redoDays=7;else redoDays=14;}
+        return <div key={l.id} className="C" style={{padding:"12px 14px",display:"flex",alignItems:"center",gap:10}}>
+        <span style={{width:10,height:10,borderRadius:5,background:dc(l.diff),flexShrink:0}}/>
         <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:12,color:"#d1d5db",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.name}</div>
-          <div style={{fontSize:10,color:"#475569"}}>{l.pattern}{l.redo?" \u00B7 redo "+l.redo:""}</div>
+          <div style={{fontSize:14,color:"#d1d5db",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.name}</div>
+          <div style={{fontSize:12,color:"#475569"}}>{l.pattern}{l.redo?" \u00B7 redo "+l.redo:""}</div>
         </div>
-        <div style={{display:"flex",gap:2,flexShrink:0}}>
-          <button onClick={function(){schedRedo(l.id,3)}} title="Redo in 3 days" style={{background:l.redo?"#3b82f622":"transparent",border:"1px solid #141c2e",color:"#3b82f6",borderRadius:4,padding:"1px 4px",fontSize:8,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>3</button>
-          <button onClick={function(){schedRedo(l.id,7)}} title="Redo in 7 days" style={{background:"transparent",border:"1px solid #141c2e",color:"#818cf8",borderRadius:4,padding:"1px 4px",fontSize:8,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>7</button>
-          <button onClick={function(){schedRedo(l.id,14)}} title="Redo in 14 days" style={{background:"transparent",border:"1px solid #141c2e",color:"#a78bfa",borderRadius:4,padding:"1px 4px",fontSize:8,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>14</button>
+        <div style={{display:"flex",gap:4,flexShrink:0}}>
+          <button onClick={function(){schedRedo(l.id,3)}} style={{background:redoDays===3?"#3b82f633":"transparent",border:redoDays===3?"1px solid #3b82f6":"1px solid #1a2744",color:"#3b82f6",borderRadius:8,minWidth:36,minHeight:36,fontSize:12,cursor:"pointer",fontFamily:"'JetBrains Mono'",fontWeight:600}}>3</button>
+          <button onClick={function(){schedRedo(l.id,7)}} style={{background:redoDays===7?"#818cf833":"transparent",border:redoDays===7?"1px solid #818cf8":"1px solid #1a2744",color:"#818cf8",borderRadius:8,minWidth:36,minHeight:36,fontSize:12,cursor:"pointer",fontFamily:"'JetBrains Mono'",fontWeight:600}}>7</button>
+          <button onClick={function(){schedRedo(l.id,14)}} style={{background:redoDays===14?"#a78bfa33":"transparent",border:redoDays===14?"1px solid #a78bfa":"1px solid #1a2744",color:"#a78bfa",borderRadius:8,minWidth:36,minHeight:36,fontSize:12,cursor:"pointer",fontFamily:"'JetBrains Mono'",fontWeight:600}}>14</button>
         </div>
-        <span className="M" style={{fontSize:9,color:"#3b4a63"}}>{l.date.slice(5)}</span>
-        <button onClick={function(){rm(l.id)}} style={{background:"none",border:"none",color:"#3b4a63",cursor:"pointer",fontSize:14}}>{"\u00D7"}</button>
+        <button onClick={function(){rm(l.id)}} style={{background:"none",border:"none",color:"#475569",cursor:"pointer",fontSize:20,minWidth:36,minHeight:36,display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u00D7"}</button>
       </div>})}
     </div>
   </div>;
@@ -480,8 +483,8 @@ function JobCard(props){
         <span style={{fontSize:13,fontWeight:600,color:"#94a3b8",letterSpacing:1}}>APPLICATIONS</span>
         <span className="O" style={{fontSize:22,fontWeight:800,color:"#22c55e"}}>{apps.length}</span>
       </div>
-      <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-        {STATUSES.map(function(s){if(!counts[s])return null;return <span key={s} style={{fontSize:10,padding:"2px 6px",background:statusColor(s)+"15",border:"1px solid "+statusColor(s)+"33",borderRadius:5,color:statusColor(s)}}>{s} {counts[s]}</span>})}
+      <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+        {STATUSES.map(function(s){if(!counts[s])return null;return <span key={s} style={{fontSize:12,padding:"4px 10px",background:statusColor(s)+"15",border:"1px solid "+statusColor(s)+"33",borderRadius:8,color:statusColor(s)}}>{s} {counts[s]}</span>})}
       </div>
     </div>
     <div className="C" style={{padding:14}}>
@@ -489,14 +492,14 @@ function JobCard(props){
       <input placeholder="Role (default: SWE)..." value={ro} onChange={function(e){setRo(e.target.value)}} onKeyDown={function(e){if(e.key==="Enter")add()}} style={{marginBottom:8}}/>
       <button className="B" onClick={add}>+ Log Application</button>
     </div>
-    <div style={{maxHeight:260,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
-      {apps.slice().reverse().map(function(a){return <div key={a.id} className="C" style={{padding:"8px 12px",display:"flex",alignItems:"center",gap:8}}>
-        <div style={{width:3,height:30,borderRadius:2,background:statusColor(a.status),flexShrink:0}}/>
-        <div style={{flex:1,minWidth:0}}><div style={{fontSize:12,color:"#d1d5db",fontWeight:600}}>{a.company}</div><div style={{fontSize:10,color:"#475569"}}>{a.role} {"\u00B7"} {a.date.slice(5)}</div></div>
-        <select value={a.status} onChange={function(e){upd(a.id,e.target.value)}} style={{width:85,padding:"3px 6px",fontSize:10,color:statusColor(a.status),borderColor:statusColor(a.status)+"44"}}>
+    <div style={{maxHeight:300,overflowY:"auto",display:"flex",flexDirection:"column",gap:6}}>
+      {apps.slice().reverse().map(function(a){return <div key={a.id} className="C" style={{padding:"12px 14px",display:"flex",alignItems:"center",gap:10}}>
+        <div style={{width:4,height:36,borderRadius:2,background:statusColor(a.status),flexShrink:0}}/>
+        <div style={{flex:1,minWidth:0}}><div style={{fontSize:14,color:"#d1d5db",fontWeight:600}}>{a.company}</div><div style={{fontSize:12,color:"#475569"}}>{a.role} {"\u00B7"} {a.date.slice(5)}</div></div>
+        <select value={a.status} onChange={function(e){upd(a.id,e.target.value)}} style={{width:100,padding:"8px 8px",fontSize:12,color:statusColor(a.status),borderColor:statusColor(a.status)+"44",minHeight:40,borderRadius:8}}>
           {STATUSES.map(function(s){return <option key={s} value={s}>{s}</option>})}
         </select>
-        <button onClick={function(){rm(a.id)}} style={{background:"none",border:"none",color:"#3b4a63",cursor:"pointer",fontSize:14}}>{"\u00D7"}</button>
+        <button onClick={function(){rm(a.id)}} style={{background:"none",border:"none",color:"#475569",cursor:"pointer",fontSize:20,minWidth:36,minHeight:36,display:"flex",alignItems:"center",justifyContent:"center"}}>{"\u00D7"}</button>
       </div>})}
     </div>
   </div>;
@@ -507,13 +510,13 @@ function ScoreCard(props){
   function upd(w,k,v){var sb={...props.D.scoreboard};sb[w]={...sb[w]};sb[w][k]=parseInt(v)||0;props.save({...props.D,scoreboard:sb})}
   return <div className="C" style={{padding:14}}>
     <div style={{fontSize:13,fontWeight:600,color:"#94a3b8",letterSpacing:1,marginBottom:8}}>WEEKLY SCOREBOARD</div>
-    <div style={{display:"flex",gap:4,marginBottom:10,flexWrap:"wrap"}}>
-      {[1,2,3,4,5,6,7,8].map(function(w){return <button key={w} onClick={function(){setOpenW(w)}} style={{padding:"3px 7px",borderRadius:6,border:w===openW?"1px solid #3b82f6":"1px solid #141c2e",background:w===openW?"#3b82f611":"transparent",color:w===openW?"#3b82f6":w<=props.week?"#94a3b8":"#2a3040",fontSize:11,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>W{w}</button>})}
+    <div style={{display:"flex",gap:6,marginBottom:12,flexWrap:"wrap"}}>
+      {[1,2,3,4,5,6,7,8].map(function(w){return <button key={w} onClick={function(){setOpenW(w)}} style={{padding:"8px 12px",borderRadius:8,border:w===openW?"1px solid #3b82f6":"1px solid #141c2e",background:w===openW?"#3b82f611":"transparent",color:w===openW?"#3b82f6":w<=props.week?"#94a3b8":"#2a3040",fontSize:13,cursor:"pointer",fontFamily:"'JetBrains Mono'",fontWeight:600,minHeight:38}}>W{w}</button>})}
     </div>
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
       {SBF.map(function(f){var sb=props.D.scoreboard[openW]||{};return <div key={f.k}>
-        <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:10,color:"#64748b"}}>{f.l}</span><span className="M" style={{fontSize:9,color:"#3b4a63"}}>{f.tgt}</span></div>
-        <input type="number" className="M" min="0" value={sb[f.k]||""} placeholder="0" onChange={function(e){upd(openW,f.k,e.target.value)}} style={{padding:"5px 6px",fontSize:12,textAlign:"center"}}/>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:4}}><span style={{fontSize:12,color:"#64748b"}}>{f.l}</span><span className="M" style={{fontSize:11,color:"#3b4a63"}}>{f.tgt}</span></div>
+        <input type="number" className="M" min="0" value={sb[f.k]||""} placeholder="0" onChange={function(e){upd(openW,f.k,e.target.value)}} style={{padding:"10px 8px",fontSize:14,textAlign:"center"}}/>
       </div>})}
     </div>
   </div>;
@@ -554,8 +557,8 @@ function MobileTrack(props){
       <div className="O" style={{fontSize:10,letterSpacing:3,color:"#475569"}}>TELEMETRY</div>
       <div className="O" style={{fontSize:18,fontWeight:700,color:"#e2e8f0"}}>TRACKER</div>
     </div>
-    <div style={{display:"flex",background:"#0a0e1a",borderRadius:10,padding:3,gap:3}}>
-      {["LeetCode","Jobs","Score"].map(function(t,i){return <button key={i} onClick={function(){setSub(i)}} style={{flex:1,padding:"7px 0",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:sub===i?600:400,color:sub===i?"#fff":"#64748b",background:sub===i?"linear-gradient(135deg,#1a2744,#2563eb)":"transparent",fontFamily:"'Outfit'"}}>{t}</button>})}
+    <div style={{display:"flex",background:"#0a0e1a",borderRadius:12,padding:4,gap:4}}>
+      {["LeetCode","Jobs","Score"].map(function(t,i){return <button key={i} onClick={function(){setSub(i)}} style={{flex:1,padding:"12px 0",borderRadius:10,border:"none",cursor:"pointer",fontSize:14,fontWeight:sub===i?600:400,color:sub===i?"#fff":"#64748b",background:sub===i?"linear-gradient(135deg,#1a2744,#2563eb)":"transparent",fontFamily:"'Outfit'",minHeight:44}}>{t}</button>})}
     </div>
     {sub===0&&<LCCard D={props.D} save={props.save}/>}
     {sub===1&&<JobCard D={props.D} save={props.save}/>}
@@ -580,10 +583,10 @@ function MobileHistory(props){
         var lcT=lc.filter(function(l){return l.date===date}).length;
         var apT=ap.filter(function(a){return a.date===date}).length;
         var label=new Date(date+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
-        return <div key={date} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #141c2e"}}>
-          <div style={{width:10,height:10,borderRadius:5,background:all?"#22c55e":dn>=3?"#f59e0b":"#ef4444",flexShrink:0}}/>
-          <div style={{flex:1}}><div style={{fontSize:12,color:"#d1d5db",fontWeight:500}}>{label}</div><div style={{fontSize:10,color:"#475569"}}>Checks: {dn}/{cl.length}{lcT>0?" \u00B7 LC: "+lcT:""}{apT>0?" \u00B7 Apps: "+apT:""}</div></div>
-          <div style={{display:"flex",gap:2}}>{cl.map(function(c,i){return <div key={i} style={{width:6,height:6,borderRadius:3,background:c?"#22c55e":"#293548"}}/>})}</div>
+        return <div key={date} style={{display:"flex",alignItems:"center",gap:12,padding:"12px 0",borderBottom:"1px solid #141c2e"}}>
+          <div style={{width:12,height:12,borderRadius:6,background:all?"#22c55e":dn>=3?"#f59e0b":"#ef4444",flexShrink:0}}/>
+          <div style={{flex:1}}><div style={{fontSize:14,color:"#d1d5db",fontWeight:500}}>{label}</div><div style={{fontSize:12,color:"#475569"}}>Checks: {dn}/{cl.length}{lcT>0?" \u00B7 LC: "+lcT:""}{apT>0?" \u00B7 Apps: "+apT:""}</div></div>
+          <div style={{display:"flex",gap:3}}>{cl.map(function(c,i){return <div key={i} style={{width:8,height:8,borderRadius:4,background:c?"#22c55e":"#293548"}}/>})}</div>
         </div>;
       })}
     </div>
