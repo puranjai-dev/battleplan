@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Battle Plan">
+<meta name="theme-color" content="#060810">
+<title>60-Day Battle Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:#060810;color:#e2e8f0;font-family:'Outfit',sans-serif;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#1a2236;border-radius:3px}
+@keyframes su{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.C{background:#0a0e1a;border:1px solid #141c2e;border-radius:14px;padding:16px;animation:su .3s ease both}
+.M{font-family:'JetBrains Mono',monospace}
+.O{font-family:'Orbitron',sans-serif}
+.B{background:linear-gradient(135deg,#1a2744,#2563eb);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:'Outfit';font-size:13px;font-weight:500;cursor:pointer;width:100%}
+.B:active{transform:scale(.97)}
+input,select{background:#080c16;border:1px solid #141c2e;color:#e2e8f0;border-radius:8px;padding:8px 12px;font-family:'Outfit';font-size:13px;width:100%;outline:none}
+input:focus,select:focus{border-color:#3b82f6}
+select{appearance:none}
+#root{min-height:100vh}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// Firebase REST API — no SDK needed
+var FB_URL="https://battleplan-60-f3432-default-rtdb.firebaseio.com/battleplan/data.json";
+var _saveTimeout=null;
+function fbLoad(){
+  return fetch(FB_URL).then(function(r){return r.json()}).then(function(d){return d}).catch(function(){return null});
+}
+function fbSave(data){
+  clearTimeout(_saveTimeout);
+  _saveTimeout=setTimeout(function(){
+    fetch(FB_URL,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).catch(function(e){console.error("Firebase write:",e)});
+  },400);
+}
+</script>
+<script type="text/babel">
+var useState=React.useState,useEffect=React.useEffect,useCallback=React.useCallback,useMemo=React.useMemo,useRef=React.useRef;
+
+/* ═══ CONSTANTS ═══ */
+var CHECKS=[
+  {l:"Solve 2-4 DSA problems (Neetcode)",t:"1.5h",i:"\u26A1"},
+  {l:"Practice 1 system design problem",t:"1h",i:"\uD83C\uDFD7"},
+  {l:"Send 1-2 tailored job applications",t:"30m",i:"\uD83D\uDCE8"},
+  {l:"Showcase project / interview prep",t:"1.5h",i:"\uD83D\uDD27"},
+  {l:"AI Twitter skim (MAX 15 min!)",t:"15m",i:"\uD83D\uDCE1"},
+];
+var PATTERNS=["Arrays & Hashing","Two Pointers","Sliding Window","Stack","Binary Search","Linked List","Trees","Tries","Heap/PQ","Backtracking","Graphs","DP (1D)","DP (2D)","Greedy","Intervals"];
+var STATUSES=["Applied","Screening","Phone","Technical","Onsite","Offer","Rejected","Ghosted"];
+function statusColor(s){var m={Applied:"#3b82f6",Screening:"#818cf8",Phone:"#a78bfa",Technical:"#f59e0b",Onsite:"#f97316",Offer:"#22c55e",Rejected:"#ef4444",Ghosted:"#475569"};return m[s]||"#64748b"}
+var PHASES=[
+  {t:"Phase 1: Foundation",w:"Weeks 1-2",c:"#3b82f6",tasks:["DSA: Arrays, Two Pointers, Sliding Window, Stack, Binary Search (3-4/day)","System Design: Alex Xu Ch 1-5, URL shortener, rate limiter","Resume: Finalize SWE + AI versions by Day 5","Applications: Start pipeline, 8-10 targeted apps/week","Weekend 1: MERN refresh (one CRUD app, then done forever)"]},
+  {t:"Phase 2: Acceleration",w:"Weeks 3-4",c:"#60a5fa",tasks:["DSA: Trees, Graphs, Heap, Backtracking, DP basics (2-3/day)","System Design: News feed, chat, notifications + AI-specific designs","Showcase Project: Build, document, ship to GitHub by Week 4","Applications: 8-10/week + follow up on earlier ones","Behavioral: Draft 5 STAR stories from Techzone + IpserLab"]},
+  {t:"Phase 3: Peak",w:"Weeks 5-6",c:"#818cf8",tasks:["DSA: DP (2D), Greedy, Intervals + redo all failed problems","System Design: AI-specific (RAG, model serving, eval pipeline)","Mock Interviews: 2/week minimum (Pramp / Interviewing.io)","Practice 'tell me about yourself' pitch (2 min, timed)"]},
+  {t:"Phase 4: Closing",w:"Weeks 7-8",c:"#a78bfa",tasks:["DSA: Speed drills - 3 mediums in 75 minutes","System Design: Full 45-min mocks, traditional + AI-specific","Company-specific deep prep for every scheduled interview","Behavioral: Final rehearsal + salary negotiation prep"]},
+];
+var COMPANIES=[
+  {tier:"A",c:"#22c55e",list:["Databricks - SWE, Data/AI Platform","Scale AI - Platform Eng","Anthropic - Infrastructure","OpenAI - Platform/Infra","Hugging Face - Platform Eng"]},
+  {tier:"B",c:"#3b82f6",list:["Google - Cloud AI, Vertex AI","Meta - AI Infra, Production ML","Microsoft - Azure AI, Copilot","Amazon/AWS - SageMaker, Bedrock","AMD - ROCm, AI Tooling"]},
+  {tier:"C",c:"#f59e0b",list:["Series B+ AI startups (Austin)","Notion, Vercel, Replit, Cursor","Salesforce, ServiceNow, Snowflake","CoreWeave, Lambda, Modal"]},
+];
+var SBF=[
+  {k:"dsa",l:"DSA",tgt:"15-20",c:"#3b82f6"},{k:"sd",l:"Sys Design",tgt:"2-3",c:"#818cf8"},
+  {k:"apps",l:"Apps",tgt:"8-10",c:"#22c55e"},{k:"resp",l:"Responses",tgt:"-",c:"#f59e0b"},
+  {k:"mocks",l:"Mocks",tgt:"1-2",c:"#a78bfa"},{k:"tw",l:"X Hrs",tgt:"<2",c:"#ef4444"},
+];
+function dk(d){if(!d)d=new Date();return d.toISOString().split("T")[0]}
+function initSB(){var o={};for(var i=1;i<=8;i++)o[i]={dsa:0,sd:0,apps:0,resp:0,mocks:0,tw:0};return o}
+function defaultData(){return{startDate:dk(),checklists:{},leetcode:[],applications:[],scoreboard:initSB()}}
+function calcStreak(cl){var s=0,d=new Date();var tc=cl[dk(d)];if(!tc||!tc.every(Boolean))d.setDate(d.getDate()-1);while(true){var c=cl[dk(d)];if(c&&c.every(Boolean)){s++;d.setDate(d.getDate()-1)}else break}return s}
+// Normalize Firebase arrays (objects with numeric keys)
+function norm(data){
+  if(!data)return defaultData();
+  if(data.leetcode&&!Array.isArray(data.leetcode))data.leetcode=Object.values(data.leetcode);
+  if(data.applications&&!Array.isArray(data.applications))data.applications=Object.values(data.applications);
+  if(!data.leetcode)data.leetcode=[];
+  if(!data.applications)data.applications=[];
+  if(!data.scoreboard)data.scoreboard=initSB();
+  if(!data.checklists)data.checklists={};
+  return data;
+}
+
+/* ═══ MAIN APP ═══ */
+function App(){
+  var s0=useState(null);var D=s0[0],setD=s0[1];
+  var s1=useState(0);var tab=s1[0],setTab=s1[1];
+  var s2=useState(true);var ld=s2[0],setLd=s2[1];
+  var s3=useState(window.innerWidth);var W=s3[0],setW=s3[1];
+  var s5=useState("connecting");var fbStatus=s5[0],setFbStatus=s5[1];
+
+  useEffect(function(){function h(){setW(window.innerWidth)}window.addEventListener("resize",h);return function(){window.removeEventListener("resize",h)}},[]);
+
+  useEffect(function(){
+    // Check Firebase connectivity
+    fetch(FB_URL,{method:"HEAD"}).then(function(){setFbStatus("online")}).catch(function(){setFbStatus("offline")});
+  },[]);
+
+  useEffect(function(){
+    async function boot(){
+      try{
+        var data=await fbLoad();
+        if(data){setD(norm(data))}
+        else{
+          var local=localStorage.getItem("bp60_local");
+          if(local){var p=norm(JSON.parse(local));fbSave(p);setD(p)}
+          else{var f=defaultData();fbSave(f);setD(f)}
+        }
+      }catch(e){
+        var l=localStorage.getItem("bp60_local");
+        setD(l?norm(JSON.parse(l)):defaultData());
+      }
+      setLd(false);
+    }
+    boot();
+  },[]);
+
+  var save=useCallback(function(n){
+    setD(n);
+    localStorage.setItem("bp60_local",JSON.stringify(n));
+    fbSave(n);
+  },[]);
+
+  if(ld||!D)return <div style={{background:"#060810",color:"#3b82f6",height:"100vh",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"monospace",fontSize:14}}>INITIALIZING...</div>;
+
+  var today=dk();
+  var checks=D.checklists[today]||CHECKS.map(function(){return false});
+  var elapsed=Math.max(0,Math.floor((Date.now()-new Date(D.startDate).getTime())/864e5));
+  var left=Math.max(0,60-elapsed);
+  var week=Math.min(8,Math.floor(elapsed/7)+1);
+  var streak=calcStreak(D.checklists);
+  var done=checks.filter(Boolean).length;
+  var desk=W>=900;
+  function toggleCheck(i){var nc=checks.map(function(c,j){return j===i?!c:c});save({...D,checklists:{...D.checklists,[today]:nc}})}
+
+  var tabItems=[{i:"\u25CE",l:"Mission"},{i:"\u25A6",l:"Plan"},{i:"\u25EB",l:"Track"},{i:"\u229E",l:"History"}];
+
+  function ConnBadge(){
+    var statusDot=fbStatus==="online"?"#22c55e":fbStatus==="offline"?"#ef4444":"#f59e0b";
+    var statusLabel=fbStatus==="online"?"Synced":fbStatus==="offline"?"Offline":"...";
+    return <div style={{display:"flex",alignItems:"center",background:"#0a0e1a",border:"1px solid #141c2e",borderRadius:8,padding:"4px 10px",fontSize:10,color:"#64748b",gap:4}}>
+      <span style={{width:6,height:6,borderRadius:3,background:statusDot,boxShadow:"0 0 4px "+statusDot+"66",display:"inline-block"}}/>
+      {statusLabel}
+    </div>;
+  }
+
+  if(desk){
+    return (
+      <div style={{background:"#060810",minHeight:"100vh",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif"}}>
+        <div style={{maxWidth:1400,margin:"0 auto",padding:"20px 24px"}}>
+          <DesktopHeader left={left} streak={streak} week={week} connBadge={<ConnBadge/>}/>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16,marginTop:16}}>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              <CountdownRing left={left} elapsed={elapsed}/>
+              <StatsGrid streak={streak} week={week} lc={D.leetcode.length} apps={D.applications.length}/>
+              <ChecklistCard checks={checks} toggle={toggleCheck} done={done}/>
+              <FilterCard/>
+              <DatePicker D={D} save={save}/>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              <HeatmapCard checklists={D.checklists} startDate={D.startDate}/>
+              <PlanCards week={week}/>
+              <CompanyCards/>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              <LCCard D={D} save={save}/>
+              <JobCard D={D} save={save}/>
+              <ScoreCard D={D} save={save} week={week}/>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{background:"#060810",minHeight:"100vh",color:"#e2e8f0",fontFamily:"'Outfit',sans-serif",paddingBottom:72,maxWidth:480,margin:"0 auto"}}>
+      {tab===0&&<MobileMission D={D} save={save} checks={checks} toggle={toggleCheck} left={left} elapsed={elapsed} streak={streak} week={week} done={done} connBadge={<ConnBadge/>}/>}
+      {tab===1&&<MobilePlan week={week}/>}
+      {tab===2&&<MobileTrack D={D} save={save} week={week}/>}
+      {tab===3&&<MobileHistory D={D} save={save}/>}
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:"linear-gradient(180deg,transparent,#060810 20%)",paddingTop:16,zIndex:50}}>
+        <div style={{display:"flex",justifyContent:"space-around",background:"#0a0e1a",borderTop:"1px solid #1a2236",borderRadius:"16px 16px 0 0",padding:"6px 0 8px"}}>
+          {tabItems.map(function(t,i){return(
+            <button key={i} onClick={function(){setTab(i)}} style={{background:"none",border:"none",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:1,padding:"4px 16px",color:tab===i?"#3b82f6":"#475569"}}>
+              <span style={{fontSize:18,fontFamily:"'Orbitron'",fontWeight:tab===i?700:400}}>{t.i}</span>
+              <span style={{fontSize:10,fontWeight:tab===i?600:400}}>{t.l}</span>
+              {tab===i&&<div style={{width:4,height:4,borderRadius:2,background:"#3b82f6",marginTop:1}}/>}
+            </button>
+          )})}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ═══ SHARED COMPONENTS ═══ */
+function DesktopHeader(props){
+  return <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 0"}}>
+    <div style={{display:"flex",alignItems:"center",gap:12}}>
+      <span className="O" style={{fontSize:18,fontWeight:700,background:"linear-gradient(90deg,#3b82f6,#818cf8)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>60-DAY BATTLE PLAN</span>
+      <span className="O" style={{fontSize:10,color:"#475569"}}>MISSION CONTROL</span>
+      {props.connBadge}
+    </div>
+    <div style={{display:"flex",gap:20}}>
+      <div style={{textAlign:"center"}}><div className="O" style={{fontSize:16,fontWeight:700,color:props.left<=7?"#f59e0b":"#3b82f6"}}>{props.left}d</div><div style={{fontSize:9,color:"#475569"}}>LEFT</div></div>
+      <div style={{textAlign:"center"}}><div className="O" style={{fontSize:16,fontWeight:700,color:props.streak>=7?"#22c55e":"#3b82f6"}}>{props.streak}d</div><div style={{fontSize:9,color:"#475569"}}>STREAK</div></div>
+      <div style={{textAlign:"center"}}><div className="O" style={{fontSize:16,fontWeight:700,color:"#818cf8"}}>W{props.week}</div><div style={{fontSize:9,color:"#475569"}}>PHASE</div></div>
+    </div>
+  </div>;
+}
+
+function CountdownRing(props){
+  var pct=Math.min(100,Math.round(props.elapsed/60*100));var circ=2*Math.PI*52;var offset=circ-(pct/100)*circ;
+  return <div className="C" style={{display:"flex",alignItems:"center",gap:16}}>
+    <div style={{position:"relative",width:110,height:110,flexShrink:0}}>
+      <svg width="110" height="110" viewBox="0 0 110 110" style={{transform:"rotate(-90deg)"}}>
+        <circle cx="55" cy="55" r="52" fill="none" stroke="#141c2e" strokeWidth="5"/>
+        <circle cx="55" cy="55" r="52" fill="none" stroke="#3b82f6" strokeWidth="5" strokeLinecap="round" strokeDasharray={circ} strokeDashoffset={offset} style={{transition:"all .8s"}}/>
+      </svg>
+      <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
+        <span className="O" style={{fontSize:28,fontWeight:800,color:props.left<=7?"#f59e0b":"#3b82f6"}}>{props.left}</span>
+        <span style={{fontSize:9,color:"#64748b",letterSpacing:1}}>DAYS LEFT</span>
+      </div>
+    </div>
+    <div style={{flex:1}}>
+      <div style={{fontSize:13,color:"#94a3b8",fontWeight:500,marginBottom:6}}>Mission Progress</div>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+        <span style={{fontSize:11,color:"#64748b"}}>Day {props.elapsed+1} of 60</span>
+        <span className="M" style={{fontSize:11,color:"#3b82f6"}}>{pct}%</span>
+      </div>
+      <div style={{height:6,background:"#141c2e",borderRadius:3,overflow:"hidden"}}>
+        <div style={{width:pct+"%",height:"100%",background:"linear-gradient(90deg,#3b82f6,#818cf8)",borderRadius:3,transition:"width .5s"}}/>
+      </div>
+    </div>
+  </div>;
+}
+
+function StatsGrid(props){
+  var items=[{v:props.streak,s:"d",l:"Streak",c:props.streak>=7?"#22c55e":"#3b82f6"},{v:props.week,s:"/8",l:"Week",c:"#818cf8"},{v:props.lc,s:"/150",l:"LC Done",c:"#f59e0b"},{v:props.apps,s:"",l:"Apps Sent",c:"#22c55e"}];
+  return <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
+    {items.map(function(s,i){return <div key={i} className="C" style={{padding:10,textAlign:"center"}}>
+      <div className="O" style={{fontSize:20,fontWeight:700,color:s.c,lineHeight:1}}>{s.v}<span style={{fontSize:10,color:"#475569"}}>{s.s}</span></div>
+      <div style={{fontSize:9,color:"#64748b",letterSpacing:1,marginTop:3}}>{s.l}</div>
+    </div>})}
+  </div>;
+}
+
+function ChecklistCard(props){
+  var allDone=props.done===CHECKS.length;
+  return <div className="C" style={{border:allDone?"1px solid #22c55e33":"1px solid #141c2e"}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+      <div>
+        <div style={{fontSize:13,fontWeight:600,color:"#94a3b8",letterSpacing:1}}>TODAY'S MISSION</div>
+        <div className="M" style={{fontSize:10,color:"#475569",marginTop:1}}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</div>
+      </div>
+      <span className="M" style={{fontSize:12,color:allDone?"#22c55e":"#3b82f6"}}>{props.done}/{CHECKS.length}</span>
+    </div>
+    {CHECKS.map(function(item,i){var checked=props.checks[i];return(
+      <button key={i} onClick={function(){props.toggle(i)}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:checked?"rgba(34,197,94,.04)":"transparent",border:checked?"1px solid rgba(34,197,94,.12)":"1px solid #141c2e",borderRadius:10,cursor:"pointer",marginBottom:4,width:"100%",textAlign:"left"}}>
+        <div style={{width:20,height:20,borderRadius:6,border:checked?"2px solid #22c55e":"2px solid #293548",background:checked?"#22c55e":"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{checked&&<span style={{color:"#fff",fontSize:11}}>✓</span>}</div>
+        <span style={{flex:1,fontSize:13,color:checked?"#64748b":"#d1d5db",textDecoration:checked?"line-through":"none"}}>{item.i} {item.l}</span>
+        <span className="M" style={{fontSize:10,color:"#3b4a63"}}>{item.t}</span>
+      </button>
+    )})}
+  </div>;
+}
+
+function FilterCard(){
+  return <div className="C" style={{background:"linear-gradient(135deg,#120808,#100a16)",border:"1px solid #2d1420",textAlign:"center",padding:14}}>
+    <div style={{fontSize:12,fontWeight:600,color:"#f59e0b",letterSpacing:1,marginBottom:4}}>{"\u26A0"} DECISION FILTER</div>
+    <div style={{fontSize:13,color:"#94a3b8"}}>Will this help me pass an interview in 60 days?</div>
+    <div className="O" style={{fontSize:11,color:"#ef4444",marginTop:4,fontWeight:600}}>IF NO → CLOSE THE TAB</div>
+  </div>;
+}
+
+function HeatmapCard(props){
+  var weeks=useMemo(function(){
+    var start=new Date(props.startDate);var end=new Date(start);end.setDate(end.getDate()+59);var today=new Date();
+    var ws=[],curr=new Date(start),wk=[];
+    for(var pad=0;pad<curr.getDay();pad++)wk.push(null);
+    while(curr<=end){var key=dk(curr);var cl=props.checklists[key];var ct=cl?cl.filter(Boolean).length:0;wk.push({date:key,count:ct,isToday:dk(curr)===dk(today),isPast:curr<=today});if(wk.length===7){ws.push(wk);wk=[]}curr=new Date(curr.getTime()+864e5)}
+    if(wk.length)ws.push(wk);return ws;
+  },[props.checklists,props.startDate]);
+  function gc(ct){if(ct===0)return"#141c2e";if(ct<=1)return"#0c2d1f";if(ct<=2)return"#134e2a";if(ct<=3)return"#166534";if(ct<=4)return"#16a34a";return"#22c55e"}
+  return <div className="C">
+    <div style={{fontSize:13,fontWeight:600,color:"#94a3b8",marginBottom:10,letterSpacing:1}}>60-DAY HEATMAP</div>
+    <div style={{display:"flex",gap:3,justifyContent:"center",flexWrap:"wrap"}}>
+      {weeks.map(function(wk,wi){return <div key={wi} style={{display:"flex",flexDirection:"column",gap:3}}>
+        {wk.map(function(d,di){if(!d)return <div key={di} style={{width:14,height:14}}/>;return <div key={di} title={d.date+": "+d.count+"/5"} style={{width:14,height:14,borderRadius:3,background:d.isPast?gc(d.count):"#0c1018",border:d.isToday?"2px solid #3b82f6":"none"}}/>})}
+      </div>})}
+    </div>
+    <div style={{display:"flex",alignItems:"center",gap:4,justifyContent:"flex-end",marginTop:8}}>
+      <span style={{fontSize:9,color:"#475569"}}>Less</span>
+      {[0,1,3,5].map(function(n){return <div key={n} style={{width:10,height:10,borderRadius:2,background:gc(n)}}/>})}
+      <span style={{fontSize:9,color:"#475569"}}>More</span>
+    </div>
+  </div>;
+}
+
+function PlanCards(props){
+  var week=props.week;var s1=useState(null);var openPhase=s1[0],setOpenPhase=s1[1];
+  return <div style={{display:"flex",flexDirection:"column",gap:10}}>
+    <div className="C" style={{padding:14}}>
+      <div style={{fontSize:13,fontWeight:600,color:"#94a3b8",letterSpacing:1,marginBottom:8}}>PRIORITY STACK</div>
+      {[{p:"60%",l:"DSA + System Design",c:"#3b82f6"},{p:"25%",l:"Project + Resume",c:"#818cf8"},{p:"10%",l:"AI Awareness",c:"#475569"},{p:"0%",l:"MERN / New Courses",c:"#ef4444"}].map(function(x,i){return <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:5}}>
+        <span className="O" style={{fontSize:11,fontWeight:700,color:x.c,width:32,textAlign:"right"}}>{x.p}</span>
+        <div style={{flex:1}}><div style={{height:5,background:"#141c2e",borderRadius:3,overflow:"hidden",marginBottom:2}}><div style={{width:x.p==="0%"?"2%":x.p,height:"100%",background:x.c,borderRadius:3}}/></div><span style={{fontSize:11,color:"#d1d5db"}}>{x.l}</span></div>
+      </div>})}
+    </div>
+    {PHASES.map(function(ph,i){var active=Math.ceil(week/2)===i+1;var open=openPhase===i;return(
+      <button key={i} className="C" onClick={function(){setOpenPhase(open?null:i)}} style={{cursor:"pointer",border:active?"1px solid "+ph.c+"44":"1px solid #141c2e",textAlign:"left",width:"100%",padding:14}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div><div style={{fontSize:13,fontWeight:600,color:ph.c}}>{ph.t}</div><div className="M" style={{fontSize:10,color:"#475569"}}>{ph.w}{active?" \u25CF ACTIVE":""}</div></div>
+          <span style={{color:"#475569",transform:open?"rotate(180deg)":"none",display:"inline-block",transition:"transform .2s"}}>{"\u25BE"}</span>
+        </div>
+        {open&&<div style={{marginTop:10}}>{ph.tasks.map(function(t,j){return <div key={j} style={{fontSize:12,color:"#94a3b8",lineHeight:1.5,paddingLeft:10,borderLeft:"2px solid "+ph.c+"33",marginBottom:4}}>{t}</div>})}</div>}
+      </button>
+    )})}
+  </div>;
+}
+
+function CompanyCards(){
+  var s1=useState(false);var open=s1[0],setOpen=s1[1];
+  return <button className="C" onClick={function(){setOpen(!open)}} style={{cursor:"pointer",textAlign:"left",width:"100%",padding:14}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <span style={{fontSize:13,fontWeight:600,color:"#e2e8f0"}}>{"\uD83C\uDFAF"} Target Companies</span>
+      <span style={{color:"#475569",transform:open?"rotate(180deg)":"none",display:"inline-block",transition:"transform .2s"}}>{"\u25BE"}</span>
+    </div>
+    {open&&<div style={{marginTop:10}}>{COMPANIES.map(function(tier,i){return <div key={i} style={{marginBottom:8}}>
+      <div style={{fontSize:11,fontWeight:600,color:tier.c,letterSpacing:1,marginBottom:3}}>TIER {tier.tier}</div>
+      {tier.list.map(function(co,j){return <div key={j} style={{fontSize:12,color:"#94a3b8",paddingLeft:10,borderLeft:"2px solid "+tier.c+"33",marginBottom:2,lineHeight:1.4}}>{co}</div>})}
+    </div>})}</div>}
+  </button>;
+}
+
+function DatePicker(props){
+  var s1=useState(false);var open=s1[0],setOpen=s1[1];
+  var sd=new Date(props.D.startDate);
+  var s2=useState(sd.getFullYear());var year=s2[0],setYear=s2[1];
+  var s3=useState(sd.getMonth());var month=s3[0],setMonth=s3[1];
+  var days=new Date(year,month+1,0).getDate();var firstDay=new Date(year,month,1).getDay();
+  function pick(d){var v=year+"-"+String(month+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");props.save({...props.D,startDate:v});setOpen(false)}
+  function prevM(){if(month===0){setMonth(11);setYear(year-1)}else setMonth(month-1)}
+  function nextM(){if(month===11){setMonth(0);setYear(year+1)}else setMonth(month+1)}
+  return <div style={{display:"flex",alignItems:"center",gap:10,justifyContent:"center",position:"relative"}}>
+    <span style={{fontSize:11,color:"#475569"}}>Start date:</span>
+    <button onClick={function(){setOpen(!open)}} className="M" style={{background:"#0a0e1a",border:"1px solid #141c2e",color:"#94a3b8",padding:"6px 12px",borderRadius:8,cursor:"pointer",fontSize:12}}>{props.D.startDate}</button>
+    {open&&<div style={{position:"absolute",bottom:40,left:"50%",transform:"translateX(-50%)",background:"#0a0e1a",border:"1px solid #1a2744",borderRadius:12,padding:14,zIndex:100,width:270,boxShadow:"0 8px 32px rgba(0,0,0,.6)"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <button onClick={prevM} style={{background:"none",border:"none",color:"#94a3b8",cursor:"pointer",fontSize:16,padding:4}}>{"\u2039"}</button>
+        <span style={{fontSize:13,fontWeight:600,color:"#e2e8f0"}}>{new Date(year,month).toLocaleDateString("en-US",{month:"long",year:"numeric"})}</span>
+        <button onClick={nextM} style={{background:"none",border:"none",color:"#94a3b8",cursor:"pointer",fontSize:16,padding:4}}>{"\u203A"}</button>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,textAlign:"center"}}>
+        {["Su","Mo","Tu","We","Th","Fr","Sa"].map(function(d){return <div key={d} style={{fontSize:9,color:"#475569",padding:3}}>{d}</div>})}
+        {Array(firstDay).fill(null).map(function(_,i){return <div key={"e"+i}/>})}
+        {Array(days).fill(null).map(function(_,i){var d=i+1;var v=year+"-"+String(month+1).padStart(2,"0")+"-"+String(d).padStart(2,"0");var isSel=v===props.D.startDate;return <button key={d} onClick={function(){pick(d)}} style={{padding:5,borderRadius:6,border:"none",background:isSel?"#3b82f6":"transparent",color:isSel?"#fff":"#94a3b8",cursor:"pointer",fontSize:12,fontFamily:"'JetBrains Mono'"}}>{d}</button>})}
+      </div>
+    </div>}
+  </div>;
+}
+
+function LCCard(props){
+  var s1=useState("");var nm=s1[0],setNm=s1[1];
+  var s2=useState(PATTERNS[0]);var pt=s2[0],setPt=s2[1];
+  var s3=useState("Medium");var df=s3[0],setDf=s3[1];
+  var lc=props.D.leetcode||[];
+  function add(){if(!nm.trim())return;props.save({...props.D,leetcode:[...lc,{id:Date.now(),name:nm.trim(),pattern:pt,diff:df,date:dk()}]});setNm("")}
+  function rm(id){props.save({...props.D,leetcode:lc.filter(function(l){return l.id!==id})})}
+  var byP={};lc.forEach(function(l){byP[l.pattern]=(byP[l.pattern]||0)+1});
+  var dc=function(d){return d==="Easy"?"#22c55e":d==="Medium"?"#f59e0b":"#ef4444"};
+  return <div style={{display:"flex",flexDirection:"column",gap:10}}>
+    <div className="C" style={{padding:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <span style={{fontSize:13,fontWeight:600,color:"#94a3b8",letterSpacing:1}}>LEETCODE</span>
+        <span className="O" style={{fontSize:22,fontWeight:800,color:"#f59e0b"}}>{lc.length}<span style={{fontSize:10,color:"#475569"}}>/150</span></span>
+      </div>
+      <div style={{height:6,background:"#141c2e",borderRadius:3,overflow:"hidden",marginBottom:8}}>
+        <div style={{width:Math.min(100,lc.length/150*100)+"%",height:"100%",background:"linear-gradient(90deg,#f59e0b,#f97316)",borderRadius:3}}/>
+      </div>
+      {Object.keys(byP).length>0&&<div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+        {Object.entries(byP).sort(function(a,b){return b[1]-a[1]}).slice(0,5).map(function(e){return <span key={e[0]} style={{fontSize:10,padding:"2px 6px",background:"#141c2e",borderRadius:5,color:"#94a3b8"}}>{e[0]} <span className="M" style={{color:"#f59e0b"}}>{e[1]}</span></span>})}
+      </div>}
+    </div>
+    <div className="C" style={{padding:14}}>
+      <input placeholder="Problem name..." value={nm} onChange={function(e){setNm(e.target.value)}} onKeyDown={function(e){if(e.key==="Enter")add()}} style={{marginBottom:6}}/>
+      <div style={{display:"flex",gap:6,marginBottom:8}}>
+        <select value={pt} onChange={function(e){setPt(e.target.value)}} style={{flex:2}}>{PATTERNS.map(function(p){return <option key={p} value={p}>{p}</option>})}</select>
+        <select value={df} onChange={function(e){setDf(e.target.value)}} style={{flex:1}}>{["Easy","Medium","Hard"].map(function(d){return <option key={d} value={d}>{d}</option>})}</select>
+      </div>
+      <button className="B" onClick={add}>+ Log Problem</button>
+    </div>
+    <div style={{maxHeight:260,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
+      {lc.slice().reverse().slice(0,15).map(function(l){return <div key={l.id} className="C" style={{padding:"8px 12px",display:"flex",alignItems:"center",gap:8}}>
+        <span style={{width:7,height:7,borderRadius:4,background:dc(l.diff),flexShrink:0}}/>
+        <div style={{flex:1,minWidth:0}}><div style={{fontSize:12,color:"#d1d5db",fontWeight:500,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{l.name}</div><div style={{fontSize:10,color:"#475569"}}>{l.pattern}</div></div>
+        <span className="M" style={{fontSize:9,color:"#3b4a63"}}>{l.date.slice(5)}</span>
+        <button onClick={function(){rm(l.id)}} style={{background:"none",border:"none",color:"#3b4a63",cursor:"pointer",fontSize:14}}>{"\u00D7"}</button>
+      </div>})}
+    </div>
+  </div>;
+}
+
+function JobCard(props){
+  var s1=useState("");var co=s1[0],setCo=s1[1];
+  var s2=useState("");var ro=s2[0],setRo=s2[1];
+  var apps=props.D.applications||[];
+  function add(){if(!co.trim())return;props.save({...props.D,applications:[...apps,{id:Date.now(),company:co.trim(),role:ro.trim()||"SWE",status:"Applied",date:dk()}]});setCo("");setRo("")}
+  function upd(id,s){props.save({...props.D,applications:apps.map(function(a){return a.id===id?{...a,status:s}:a})})}
+  function rm(id){props.save({...props.D,applications:apps.filter(function(a){return a.id!==id})})}
+  var counts={};apps.forEach(function(a){counts[a.status]=(counts[a.status]||0)+1});
+  return <div style={{display:"flex",flexDirection:"column",gap:10}}>
+    <div className="C" style={{padding:14}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <span style={{fontSize:13,fontWeight:600,color:"#94a3b8",letterSpacing:1}}>APPLICATIONS</span>
+        <span className="O" style={{fontSize:22,fontWeight:800,color:"#22c55e"}}>{apps.length}</span>
+      </div>
+      <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+        {STATUSES.map(function(s){if(!counts[s])return null;return <span key={s} style={{fontSize:10,padding:"2px 6px",background:statusColor(s)+"15",border:"1px solid "+statusColor(s)+"33",borderRadius:5,color:statusColor(s)}}>{s} {counts[s]}</span>})}
+      </div>
+    </div>
+    <div className="C" style={{padding:14}}>
+      <input placeholder="Company..." value={co} onChange={function(e){setCo(e.target.value)}} style={{marginBottom:6}}/>
+      <input placeholder="Role (default: SWE)..." value={ro} onChange={function(e){setRo(e.target.value)}} onKeyDown={function(e){if(e.key==="Enter")add()}} style={{marginBottom:8}}/>
+      <button className="B" onClick={add}>+ Log Application</button>
+    </div>
+    <div style={{maxHeight:260,overflowY:"auto",display:"flex",flexDirection:"column",gap:4}}>
+      {apps.slice().reverse().map(function(a){return <div key={a.id} className="C" style={{padding:"8px 12px",display:"flex",alignItems:"center",gap:8}}>
+        <div style={{width:3,height:30,borderRadius:2,background:statusColor(a.status),flexShrink:0}}/>
+        <div style={{flex:1,minWidth:0}}><div style={{fontSize:12,color:"#d1d5db",fontWeight:600}}>{a.company}</div><div style={{fontSize:10,color:"#475569"}}>{a.role} {"\u00B7"} {a.date.slice(5)}</div></div>
+        <select value={a.status} onChange={function(e){upd(a.id,e.target.value)}} style={{width:85,padding:"3px 6px",fontSize:10,color:statusColor(a.status),borderColor:statusColor(a.status)+"44"}}>
+          {STATUSES.map(function(s){return <option key={s} value={s}>{s}</option>})}
+        </select>
+        <button onClick={function(){rm(a.id)}} style={{background:"none",border:"none",color:"#3b4a63",cursor:"pointer",fontSize:14}}>{"\u00D7"}</button>
+      </div>})}
+    </div>
+  </div>;
+}
+
+function ScoreCard(props){
+  var s1=useState(props.week);var openW=s1[0],setOpenW=s1[1];
+  function upd(w,k,v){var sb={...props.D.scoreboard};sb[w]={...sb[w]};sb[w][k]=parseInt(v)||0;props.save({...props.D,scoreboard:sb})}
+  return <div className="C" style={{padding:14}}>
+    <div style={{fontSize:13,fontWeight:600,color:"#94a3b8",letterSpacing:1,marginBottom:8}}>WEEKLY SCOREBOARD</div>
+    <div style={{display:"flex",gap:4,marginBottom:10,flexWrap:"wrap"}}>
+      {[1,2,3,4,5,6,7,8].map(function(w){return <button key={w} onClick={function(){setOpenW(w)}} style={{padding:"3px 7px",borderRadius:6,border:w===openW?"1px solid #3b82f6":"1px solid #141c2e",background:w===openW?"#3b82f611":"transparent",color:w===openW?"#3b82f6":w<=props.week?"#94a3b8":"#2a3040",fontSize:11,cursor:"pointer",fontFamily:"'JetBrains Mono'"}}>W{w}</button>})}
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
+      {SBF.map(function(f){var sb=props.D.scoreboard[openW]||{};return <div key={f.k}>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:10,color:"#64748b"}}>{f.l}</span><span className="M" style={{fontSize:9,color:"#3b4a63"}}>{f.tgt}</span></div>
+        <input type="number" className="M" min="0" value={sb[f.k]||""} placeholder="0" onChange={function(e){upd(openW,f.k,e.target.value)}} style={{padding:"5px 6px",fontSize:12,textAlign:"center"}}/>
+      </div>})}
+    </div>
+  </div>;
+}
+
+/* ═══ MOBILE PAGES ═══ */
+function MobileMission(props){
+  return <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:12}}>
+    <div style={{textAlign:"center",paddingTop:6}}>
+      <div style={{display:"flex",justifyContent:"center",marginBottom:6}}>{props.connBadge}</div>
+      <div className="O" style={{fontSize:10,letterSpacing:3,color:"#475569"}}>MISSION CONTROL</div>
+      <div className="O" style={{fontSize:18,fontWeight:700,background:"linear-gradient(90deg,#3b82f6,#818cf8)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>60-DAY BATTLE PLAN</div>
+    </div>
+    <CountdownRing left={props.left} elapsed={props.elapsed}/>
+    <StatsGrid streak={props.streak} week={props.week} lc={(props.D.leetcode||[]).length} apps={(props.D.applications||[]).length}/>
+    <ChecklistCard checks={props.checks} toggle={props.toggle} done={props.done}/>
+    <HeatmapCard checklists={props.D.checklists} startDate={props.D.startDate}/>
+    <FilterCard/>
+    <DatePicker D={props.D} save={props.save}/>
+  </div>;
+}
+
+function MobilePlan(props){
+  return <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:12}}>
+    <div style={{textAlign:"center",paddingTop:6}}>
+      <div className="O" style={{fontSize:10,letterSpacing:3,color:"#475569"}}>BLUEPRINT</div>
+      <div className="O" style={{fontSize:18,fontWeight:700,color:"#e2e8f0"}}>8-WEEK PLAN</div>
+    </div>
+    <PlanCards week={props.week}/>
+    <CompanyCards/>
+  </div>;
+}
+
+function MobileTrack(props){
+  var s1=useState(0);var sub=s1[0],setSub=s1[1];
+  return <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:12}}>
+    <div style={{textAlign:"center",paddingTop:6}}>
+      <div className="O" style={{fontSize:10,letterSpacing:3,color:"#475569"}}>TELEMETRY</div>
+      <div className="O" style={{fontSize:18,fontWeight:700,color:"#e2e8f0"}}>TRACKER</div>
+    </div>
+    <div style={{display:"flex",background:"#0a0e1a",borderRadius:10,padding:3,gap:3}}>
+      {["LeetCode","Jobs","Score"].map(function(t,i){return <button key={i} onClick={function(){setSub(i)}} style={{flex:1,padding:"7px 0",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:sub===i?600:400,color:sub===i?"#fff":"#64748b",background:sub===i?"linear-gradient(135deg,#1a2744,#2563eb)":"transparent",fontFamily:"'Outfit'"}}>{t}</button>})}
+    </div>
+    {sub===0&&<LCCard D={props.D} save={props.save}/>}
+    {sub===1&&<JobCard D={props.D} save={props.save}/>}
+    {sub===2&&<ScoreCard D={props.D} save={props.save} week={props.week}/>}
+  </div>;
+}
+
+function MobileHistory(props){
+  var sortedDates=Object.keys(props.D.checklists).sort().reverse();
+  return <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:12}}>
+    <div style={{textAlign:"center",paddingTop:6}}>
+      <div className="O" style={{fontSize:10,letterSpacing:3,color:"#475569"}}>MISSION LOG</div>
+      <div className="O" style={{fontSize:18,fontWeight:700,color:"#e2e8f0"}}>HISTORY</div>
+    </div>
+    <HeatmapCard checklists={props.D.checklists} startDate={props.D.startDate}/>
+    <div className="C" style={{padding:14}}>
+      <div style={{fontSize:13,fontWeight:600,color:"#94a3b8",letterSpacing:1,marginBottom:10}}>DAILY LOG</div>
+      {sortedDates.length===0&&<div style={{fontSize:12,color:"#475569",textAlign:"center",padding:20}}>No history yet. Complete today's checklist!</div>}
+      {sortedDates.slice(0,30).map(function(date){
+        var cl=props.D.checklists[date];var dn=cl.filter(Boolean).length;var all=dn===cl.length;
+        var lc=props.D.leetcode||[];var ap=props.D.applications||[];
+        var lcT=lc.filter(function(l){return l.date===date}).length;
+        var apT=ap.filter(function(a){return a.date===date}).length;
+        var label=new Date(date+"T12:00:00").toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"});
+        return <div key={date} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid #141c2e"}}>
+          <div style={{width:10,height:10,borderRadius:5,background:all?"#22c55e":dn>=3?"#f59e0b":"#ef4444",flexShrink:0}}/>
+          <div style={{flex:1}}><div style={{fontSize:12,color:"#d1d5db",fontWeight:500}}>{label}</div><div style={{fontSize:10,color:"#475569"}}>Checks: {dn}/{cl.length}{lcT>0?" \u00B7 LC: "+lcT:""}{apT>0?" \u00B7 Apps: "+apT:""}</div></div>
+          <div style={{display:"flex",gap:2}}>{cl.map(function(c,i){return <div key={i} style={{width:6,height:6,borderRadius:3,background:c?"#22c55e":"#293548"}}/>})}</div>
+        </div>;
+      })}
+    </div>
+    <DatePicker D={props.D} save={props.save}/>
+    <div style={{textAlign:"center",padding:8}}>
+      <button className="B" style={{background:"linear-gradient(135deg,#3b1010,#7f1d1d)",maxWidth:200}} onClick={function(){if(confirm("Reset ALL data?")){props.save(defaultData())}}}>Reset All Data</button>
+    </div>
+  </div>;
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById("root"));
+</script>
+</body>
+</html>
