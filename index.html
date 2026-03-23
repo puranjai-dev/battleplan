@@ -74,7 +74,7 @@ var SBF=[
   {k:"apps",l:"Apps",tgt:"8-10",c:"#22c55e"},{k:"resp",l:"Responses",tgt:"-",c:"#f59e0b"},
   {k:"mocks",l:"Mocks",tgt:"1-2",c:"#a78bfa"},{k:"tw",l:"X Hrs",tgt:"<2",c:"#ef4444"},
 ];
-function dk(d){if(!d)d=new Date();return d.toISOString().split("T")[0]}
+function dk(d){if(!d)d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function initSB(){var o={};for(var i=1;i<=8;i++)o[i]={dsa:0,sd:0,apps:0,resp:0,mocks:0,tw:0};return o}
 function defaultData(){return{startDate:dk(),checklists:{},leetcode:[],applications:[],scoreboard:initSB()}}
 function calcStreak(cl){var s=0,d=new Date();var tc=cl[dk(d)];if(!tc||!tc.every(Boolean))d.setDate(d.getDate()-1);while(true){var c=cl[dk(d)];if(c&&c.every(Boolean)){s++;d.setDate(d.getDate()-1)}else break}return s}
@@ -134,7 +134,7 @@ function App(){
 
   var today=dk();
   var checks=D.checklists[today]||CHECKS.map(function(){return false});
-  var elapsed=Math.max(0,Math.floor((Date.now()-new Date(D.startDate).getTime())/864e5));
+  var elapsed=Math.max(0,Math.floor((Date.now()-new Date(D.startDate+"T00:00:00").getTime())/864e5));
   var left=Math.max(0,60-elapsed);
   var week=Math.min(8,Math.floor(elapsed/7)+1);
   var streak=calcStreak(D.checklists);
@@ -285,7 +285,7 @@ function FilterCard(){
 
 function HeatmapCard(props){
   var weeks=useMemo(function(){
-    var start=new Date(props.startDate);var end=new Date(start);end.setDate(end.getDate()+59);var today=new Date();
+    var start=new Date(props.startDate+"T00:00:00");var end=new Date(start);end.setDate(end.getDate()+59);var today=new Date();
     var ws=[],curr=new Date(start),wk=[];
     for(var pad=0;pad<curr.getDay();pad++)wk.push(null);
     while(curr<=end){var key=dk(curr);var cl=props.checklists[key];var ct=cl?cl.filter(Boolean).length:0;wk.push({date:key,count:ct,isToday:dk(curr)===dk(today),isPast:curr<=today});if(wk.length===7){ws.push(wk);wk=[]}curr=new Date(curr.getTime()+864e5)}
@@ -345,7 +345,7 @@ function CompanyCards(){
 
 function DatePicker(props){
   var s1=useState(false);var open=s1[0],setOpen=s1[1];
-  var sd=new Date(props.D.startDate);
+  var sd=new Date(props.D.startDate+"T12:00:00");
   var s2=useState(sd.getFullYear());var year=s2[0],setYear=s2[1];
   var s3=useState(sd.getMonth());var month=s3[0],setMonth=s3[1];
   var days=new Date(year,month+1,0).getDate();var firstDay=new Date(year,month,1).getDay();
