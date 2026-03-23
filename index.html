@@ -77,7 +77,7 @@ var SBF=[
 function dk(d){if(!d)d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function initSB(){var o={};for(var i=1;i<=8;i++)o[i]={dsa:0,sd:0,apps:0,resp:0,mocks:0,tw:0};return o}
 function defaultData(){return{startDate:dk(),checklists:{},leetcode:[],applications:[],scoreboard:initSB()}}
-function calcStreak(cl){var s=0,d=new Date();var tc=cl[dk(d)];if(!tc||!tc.every(Boolean))d.setDate(d.getDate()-1);while(true){var c=cl[dk(d)];if(c&&c.every(Boolean)){s++;d.setDate(d.getDate()-1)}else break}return s}
+function calcStreak(cl,startDate){var s=0,d=new Date();var tc=cl[dk(d)];if(!tc||!tc.every(Boolean))d.setDate(d.getDate()-1);while(true){var key=dk(d);if(startDate&&key<startDate)break;var c=cl[key];if(c&&c.every(Boolean)){s++;d.setDate(d.getDate()-1)}else break}return s}
 // Normalize Firebase arrays (objects with numeric keys)
 function norm(data){
   if(!data)return defaultData();
@@ -137,7 +137,7 @@ function App(){
   var elapsed=Math.max(0,Math.floor((Date.now()-new Date(D.startDate+"T00:00:00").getTime())/864e5));
   var left=Math.max(0,60-elapsed);
   var week=Math.min(8,Math.floor(elapsed/7)+1);
-  var streak=calcStreak(D.checklists);
+  var streak=calcStreak(D.checklists,D.startDate);
   var done=checks.filter(Boolean).length;
   var desk=W>=900;
   function toggleCheck(i){var nc=checks.map(function(c,j){return j===i?!c:c});save({...D,checklists:{...D.checklists,[today]:nc}})}
@@ -567,7 +567,7 @@ function MobileTrack(props){
 }
 
 function MobileHistory(props){
-  var sortedDates=Object.keys(props.D.checklists).sort().reverse();
+  var sortedDates=Object.keys(props.D.checklists).filter(function(d){return d>=props.D.startDate}).sort().reverse();
   return <div style={{padding:"16px 14px",display:"flex",flexDirection:"column",gap:12}}>
     <div style={{textAlign:"center",paddingTop:6}}>
       <div className="O" style={{fontSize:10,letterSpacing:3,color:"#475569"}}>MISSION LOG</div>
